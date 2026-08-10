@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "vanishing-hour",
+    "name": "The Vanishing Hour",
     "slug": "vanishing-hour",
+    "scheme": "vanishinghour",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0b0f14",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arjun.vanishinghour"
     },
     "android": {
+      "package": "com.arjun.vanishinghour",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0b0f14",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +24,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-web-browser",
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "googleAuth": {
+        "iosClientId": "",
+        "androidClientId": "",
+        "webClientId": ""
+      }
     }
   }
 }
