@@ -1,7 +1,6 @@
-import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -35,7 +34,7 @@ export default function App() {
   const ready = fontsLoaded && hydrated && minBootElapsed;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.ink }}>
+    <View style={{ flex: 1, backgroundColor: colors.ink }}>
       <SafeAreaProvider>
         <StatusBar style="light" />
         {ready ? (
@@ -46,6 +45,6 @@ export default function App() {
           <BootScreen />
         )}
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </View>
   );
 }
