@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -14,6 +14,10 @@ import { colors, fonts, spacing } from '../theme';
 import { IntroSlide } from '../types/case';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Intro'>;
+
+// Matches the old fixed top-left inset when a slide doesn't specify exactly
+// where in frame the speaker's mouth is.
+const DEFAULT_BUBBLE_ORIGIN = { x: 0.08, y: 0.12 };
 
 function slideNarration(slide: IntroSlide): string {
   const parts: string[] = [];
@@ -32,6 +36,18 @@ export function IntroScreen({ route, navigation }: Props) {
   const [index, setIndex] = useState(0);
   const slide = def.intro[index];
   const isLast = index === def.intro.length - 1;
+
+  // The bubble's tail anchors to this exact point in the video frame (the
+  // speaker's mouth); the bubble body extends left or right from there —
+  // auto-picked to stay in frame, or overridden per-slide via bubbleAlign.
+  const bubbleOrigin = slide.bubbleOrigin ?? DEFAULT_BUBBLE_ORIGIN;
+  const bubbleAlign: 'left' | 'right' = slide.bubbleAlign ?? (bubbleOrigin.x < 0.5 ? 'left' : 'right');
+  const bubblePositionStyle: ViewStyle = {
+    bottom: `${(1 - bubbleOrigin.y) * 100}%` as `${number}%`,
+    ...(bubbleAlign === 'left'
+      ? { left: `${bubbleOrigin.x * 100}%` as `${number}%` }
+      : { right: `${(1 - bubbleOrigin.x) * 100}%` as `${number}%` }),
+  };
 
   const fade = useRef(new Animated.Value(0)).current;
   const rise = useRef(new Animated.Value(14)).current;
@@ -85,15 +101,22 @@ export function IntroScreen({ route, navigation }: Props) {
 
         <Pressable style={styles.panelWrap} onPress={advance}>
           <IntroPanelArt visual={slide.visual} />
+          {slide.speaker && slide.speech && (
+            <Animated.View
+              style={[
+                styles.bubbleOverlay,
+                bubblePositionStyle,
+                { opacity: fade, transform: [{ translateY: rise }] },
+              ]}
+              pointerEvents="none"
+            >
+              <SpeechBubble speaker={slide.speaker} speech={slide.speech} align={bubbleAlign} />
+            </Animated.View>
+          )}
         </Pressable>
 
         <Animated.View style={[styles.content, { opacity: fade, transform: [{ translateY: rise }] }]}>
           {slide.title && <Text style={styles.title}>{slide.title}</Text>}
-          {slide.speaker && slide.speech && (
-            <View style={styles.bubbleRow}>
-              <SpeechBubble speaker={slide.speaker} speech={slide.speech} />
-            </View>
-          )}
           {slide.caption && <BodyText style={styles.caption}>{slide.caption}</BodyText>}
         </Animated.View>
 
@@ -127,6 +150,11 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 16 / 9,
     marginTop: spacing.md,
+    position: 'relative',
+  },
+  bubbleOverlay: {
+    position: 'absolute',
+    maxWidth: '78%',
   },
   content: {
     flex: 1,
@@ -140,7 +168,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: spacing.sm,
   },
-  bubbleRow: { marginBottom: spacing.md },
   caption: {
     fontSize: 14,
     fontStyle: 'italic',

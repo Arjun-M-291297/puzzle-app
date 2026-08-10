@@ -99,6 +99,13 @@ export interface IntroSlide {
   speaker?: string;
   /** speech bubble line */
   speech?: string;
+  /** exact point in the video frame (0-1 fractions of width/height) the speech bubble's tail
+   * points to — e.g. the speaker's mouth. Defaults to a small top-left inset. */
+  bubbleOrigin?: { x: number; y: number };
+  /** which side of the origin point the bubble body extends toward; defaults to whichever
+   * side keeps it in frame (left if origin.x < 0.5, right otherwise) but can be overridden
+   * when the shot has room to go the other way. */
+  bubbleAlign?: 'left' | 'right';
   /** smaller narrative line under the visual, shown with or without a speech bubble */
   caption?: string;
 }
