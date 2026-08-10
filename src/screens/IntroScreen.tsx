@@ -8,10 +8,21 @@ import { allCases, vanishingHour } from '../data/cases/vanishingHour';
 import { useGameStore } from '../store/gameStore';
 import { IntroPanelArt } from '../components/IntroPanelArt';
 import { SpeechBubble } from '../components/SpeechBubble';
+import { ReadAloudButton } from '../components/ReadAloudButton';
 import { Button, BodyText } from '../components/ui';
 import { colors, fonts, spacing } from '../theme';
+import { IntroSlide } from '../types/case';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Intro'>;
+
+function slideNarration(slide: IntroSlide): string {
+  const parts: string[] = [];
+  if (slide.title) parts.push(slide.title);
+  if (slide.speaker && slide.speech) parts.push(`${slide.speaker}: ${slide.speech}`);
+  else if (slide.speech) parts.push(slide.speech);
+  if (slide.caption) parts.push(slide.caption);
+  return parts.join('. ');
+}
 
 export function IntroScreen({ route, navigation }: Props) {
   const { caseId } = route.params;
@@ -45,18 +56,31 @@ export function IntroScreen({ route, navigation }: Props) {
     else setIndex((i) => i + 1);
   };
 
+  const goBack = () => {
+    Haptics.selectionAsync();
+    // Even on slide one, "back" is never a dead end — it returns to the case intro screen.
+    if (index > 0) setIndex((i) => i - 1);
+    else navigation.goBack();
+  };
+
   return (
     <View style={styles.root}>
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBar}>
+          <Pressable onPress={goBack} hitSlop={10} style={styles.backBtn}>
+            <Text style={styles.backText}>‹ Back</Text>
+          </Pressable>
           <View style={styles.dots}>
             {def.intro.map((s, i) => (
               <View key={s.id} style={[styles.dot, i === index && styles.dotActive, i < index && styles.dotPast]} />
             ))}
           </View>
-          <Pressable onPress={finish} hitSlop={10}>
-            <Text style={styles.skip}>Skip</Text>
-          </Pressable>
+          <View style={styles.topRight}>
+            <ReadAloudButton text={slideNarration(slide)} resetKey={slide.id} />
+            <Pressable onPress={finish} hitSlop={10}>
+              <Text style={styles.skip}>Skip</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Pressable style={styles.panelWrap} onPress={advance}>
@@ -91,10 +115,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
+  backBtn: { minWidth: 60 },
+  backText: { color: colors.paperDim, fontFamily: fonts.display, fontSize: 12, letterSpacing: 1 },
   dots: { flexDirection: 'row', gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
   dotPast: { backgroundColor: colors.brassDim },
   dotActive: { backgroundColor: colors.brassBright, width: 16 },
+  topRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minWidth: 60, justifyContent: 'flex-end' },
   skip: { color: colors.paperDim, fontFamily: fonts.display, fontSize: 12, letterSpacing: 1 },
   panelWrap: {
     width: '100%',

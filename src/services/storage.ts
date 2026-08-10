@@ -46,6 +46,7 @@ const KEYS = {
   profile: 'vh:profile',
   streak: 'vh:streak',
   rank: 'vh:rank',
+  audioEnabled: 'vh:audioEnabled',
   progress: (caseId: string) => `vh:progress:${caseId}`,
 } as const;
 
@@ -62,6 +63,10 @@ export interface GameRepository {
 
   getRank(): Promise<RankData>;
   saveRank(rank: RankData): Promise<void>;
+
+  /** Read-aloud narration preference — defaults to on (true) the first time it's read. */
+  getAudioEnabled(): Promise<boolean>;
+  saveAudioEnabled(enabled: boolean): Promise<void>;
 }
 
 async function readJSON<T>(key: string): Promise<T | null> {
@@ -122,6 +127,15 @@ class AsyncStorageGameRepository implements GameRepository {
 
   async saveRank(rank: RankData): Promise<void> {
     await writeJSON(KEYS.rank, rank);
+  }
+
+  async getAudioEnabled(): Promise<boolean> {
+    const raw = await AsyncStorage.getItem(KEYS.audioEnabled);
+    return raw === null ? true : raw === 'true';
+  }
+
+  async saveAudioEnabled(enabled: boolean): Promise<void> {
+    await AsyncStorage.setItem(KEYS.audioEnabled, enabled ? 'true' : 'false');
   }
 }
 

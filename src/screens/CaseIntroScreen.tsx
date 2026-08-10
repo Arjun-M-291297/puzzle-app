@@ -3,6 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Screen, Heading, BodyText, CaseFileLabel, Button } from '../components/ui';
+import { ReadAloudButton } from '../components/ReadAloudButton';
 import { useGameStore } from '../store/gameStore';
 import { vanishingHour } from '../data/cases/vanishingHour';
 import { colors, radii, spacing } from '../theme';
@@ -35,7 +36,10 @@ export function CaseIntroScreen({ navigation }: Props) {
     <Screen>
       <View style={styles.container}>
         <View>
-          <CaseFileLabel>{def.subtitle}</CaseFileLabel>
+          <View style={styles.subtitleRow}>
+            <CaseFileLabel>{def.subtitle}</CaseFileLabel>
+            <ReadAloudButton text={`${def.title}. ${def.premise}`} resetKey={def.id} />
+          </View>
           <Heading style={styles.title}>{def.title}</Heading>
           <BodyText style={styles.premise}>{def.premise}</BodyText>
           <BodyText style={styles.meta}>
@@ -69,6 +73,7 @@ export function CaseIntroScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'space-between', padding: spacing.xl },
+  subtitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 28, marginTop: spacing.sm, marginBottom: spacing.lg },
   premise: { fontSize: 16, marginBottom: spacing.lg },
   meta: { fontSize: 12, opacity: 0.7 },

@@ -21,8 +21,10 @@ interface GameState {
   rank: RankData;
   progressByCase: Record<string, CaseProgress>;
   lastStreakGrowth: StreakGrowthEvent | null;
+  audioEnabled: boolean;
 
   hydrate: () => Promise<void>;
+  setAudioEnabled: (enabled: boolean) => void;
   signIn: (profile: PlayerProfile) => Promise<void>;
   signOut: () => Promise<void>;
 
@@ -67,20 +69,27 @@ export const useGameStore = create<GameState>((set, get) => ({
   rank: { totalCasesSolved: 0, totalHintsUsed: 0, totalMistakes: 0 },
   progressByCase: {},
   lastStreakGrowth: null,
+  audioEnabled: true,
 
   hydrate: async () => {
-    const [profile, streak, rank, progressEntries] = await Promise.all([
+    const [profile, streak, rank, progressEntries, audioEnabled] = await Promise.all([
       gameRepository.getProfile(),
       gameRepository.getStreak(),
       gameRepository.getRank(),
       Promise.all(allCases.map((def) => gameRepository.getCaseProgress(def.id))),
+      gameRepository.getAudioEnabled(),
     ]);
     const progressByCase: Record<string, CaseProgress> = {};
     allCases.forEach((def, i) => {
       const saved = progressEntries[i];
       if (saved) progressByCase[def.id] = saved;
     });
-    set({ profile, streak, rank, progressByCase, hydrated: true });
+    set({ profile, streak, rank, progressByCase, audioEnabled, hydrated: true });
+  },
+
+  setAudioEnabled: (enabled) => {
+    set({ audioEnabled: enabled });
+    gameRepository.saveAudioEnabled(enabled);
   },
 
   signIn: async (profile) => {
