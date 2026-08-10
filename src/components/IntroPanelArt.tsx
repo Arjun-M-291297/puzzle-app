@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Image, ImageSource } from 'expo-image';
 import { IntroPanelVisual } from '../types/case';
 import { colors, radii } from '../theme';
 
@@ -7,22 +8,23 @@ interface Props {
   visual: IntroPanelVisual;
 }
 
-// Real illustrated panels (externally generated, see the prompts used to make them
-// in project history) — replaced the earlier SVG silhouette placeholders. The
-// IntroPanelVisual keys are historical names from that placeholder era; they still
-// map 1:1 to a panel, just no longer describe silhouette art literally.
-const PANEL_IMAGES: Record<IntroPanelVisual, ImageSourcePropType> = {
-  deskSilhouette: require('../../assets/intro/slide1-desk.jpg'),
-  worriedSilhouette: require('../../assets/intro/slide2-notes.jpg'),
-  twoSilhouettesDoor: require('../../assets/intro/slide3-silas.jpg'),
-  clockCloseup: require('../../assets/intro/slide4-clock.jpg'),
-  emptyStudyNight: require('../../assets/intro/slide5-empty.jpg'),
+// Short looping animated panels (compressed from source video, ~500-700KB each)
+// — replaced the earlier static illustrated stills. expo-image (not core RN
+// Image, which doesn't reliably animate GIFs on Android) autoplays and loops
+// these natively on iOS/Android/web. IntroPanelVisual keys are historical names
+// from an even earlier SVG-silhouette era; they still map 1:1 to a panel.
+const PANEL_IMAGES: Record<IntroPanelVisual, ImageSource> = {
+  deskSilhouette: require('../../assets/intro/slide1.gif'),
+  worriedSilhouette: require('../../assets/intro/slide2.gif'),
+  twoSilhouettesDoor: require('../../assets/intro/slide3.gif'),
+  clockCloseup: require('../../assets/intro/slide4.gif'),
+  emptyStudyNight: require('../../assets/intro/slide5.gif'),
 };
 
 export function IntroPanelArt({ visual }: Props) {
   return (
     <View style={styles.frame}>
-      <Image source={PANEL_IMAGES[visual]} style={styles.image} resizeMode="cover" />
+      <Image source={PANEL_IMAGES[visual]} style={styles.image} contentFit="cover" autoplay />
     </View>
   );
 }

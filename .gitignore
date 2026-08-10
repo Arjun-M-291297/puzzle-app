@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# raw source footage for generated GIFs — not required at runtime, regenerate
+# assets/intro/*.gif from these if you need to re-encode
+/assets/intro-vid

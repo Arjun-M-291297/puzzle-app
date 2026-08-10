@@ -18,16 +18,11 @@ import { usePulse } from '../hooks/usePulse';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
-import {
-  THIRD_SHELF_SYMBOLS,
-  THIRD_SHELF_BOOK_WIDTH,
-  THIRD_SHELF_BOOK_HEIGHT,
-  THIRD_SHELF_BOOK_Y,
-  thirdShelfBookX,
-} from './thirdShelfLayout';
 
 interface Props {
-  background: 'study' | 'drawer' | 'passage' | 'hiddenRoom';
+  // 'study' isn't included — that scene uses a real reference photo (see
+  // PlayScreen) instead of hand-drawn SVG.
+  background: 'drawer' | 'passage' | 'hiddenRoom';
 }
 
 // Illustrative-noir SVG scenes. Every object is built from curved paths and
@@ -86,7 +81,6 @@ export function SceneIllustration({ background }: Props) {
 
       <Rect x={0} y={0} width={100} height={100} fill={colors.inkRaised} />
 
-      {background === 'study' && <StudyArt />}
       {background === 'drawer' && <DrawerArt />}
       {background === 'passage' && <PassageArt />}
       {background === 'hiddenRoom' && <HiddenRoomArt />}
@@ -196,219 +190,6 @@ function DustMote({
   return <AnimatedCircle cx={cx} cy={cy} r={radius} fill={colors.brassBright} opacity={opacity} />;
 }
 
-/** A single upright book spine with a softly rounded top-left corner and a title tick. */
-function BookSpine({ x, y, w, h, fill, tilt = 0 }: { x: number; y: number; w: number; h: number; fill: string; tilt?: number }) {
-  return (
-    <G transform={tilt ? `rotate(${tilt} ${x + w / 2} ${y + h})` : undefined}>
-      <Path
-        d={`M${x},${y + h} L${x},${y + 1.4} Q${x},${y} ${x + 1.2},${y} L${x + w},${y} L${x + w},${y + h} Z`}
-        fill={fill}
-      />
-      <Line x1={x + w * 0.3} y1={y + h * 0.22} x2={x + w * 0.3} y2={y + h * 0.42} stroke="#00000055" strokeWidth={0.25} />
-      <Line x1={x + 0.5} y1={y + 1.6} x2={x + 0.5} y2={y + h - 0.6} stroke="#ffffff22" strokeWidth={0.3} />
-    </G>
-  );
-}
-
-const bookPalette = ['#7a3232', '#2f4d3a', '#a8843a', '#2c3a54', '#5c3a24'];
-
-function StudyArt() {
-  return (
-    <>
-      {/* floor with plank lines */}
-      <Rect x={0} y={82} width={100} height={18} fill="#0a0704" />
-      {[8, 22, 36, 50, 64, 78, 92].map((x) => (
-        <Line key={x} x1={x} y1={82} x2={x - 4} y2={100} stroke="#000000" strokeWidth={0.3} opacity={0.5} />
-      ))}
-      {/* wall wash + subtle panel seams */}
-      {[18, 40, 62, 84].map((x) => (
-        <Line key={x} x1={x} y1={0} x2={x} y2={82} stroke={colors.border} strokeWidth={0.3} />
-      ))}
-
-      {/* heavy curtain, stage-left */}
-      <Path d="M0,0 L12,0 Q7,42 13,82 L0,82 Z" fill="#1c1210" opacity={0.92} />
-      <Path d="M0,0 L12,0 Q7,42 13,82 L0,82 Z" fill="none" stroke="#000" strokeWidth={0.3} opacity={0.4} />
-      {[2, 5, 8, 11].map((x) => (
-        <Path key={x} d={`M${x},0 Q${x - 2},42 ${x + 1},82`} stroke="#000" strokeWidth={0.25} opacity={0.32} fill="none" />
-      ))}
-      <Path d="M0,0 L12,0 Q9,4 6,3 Q3,4 0,2 Z" fill="#120c0a" opacity={0.8} />
-
-      {/* cold fireplace: dead ash and a spent, unlit log — no glow, matches "cold ashes" clue */}
-      <Path d="M2,82 L2,64 Q10,58 18,64 L18,82 Z" fill="#050403" stroke={colors.rust} strokeWidth={0.4} />
-      <Path d="M4,82 L4,66 Q10,61 16,66 L16,82 Z" fill="#0a0605" />
-      <Path d="M6,80.5 Q10,78.5 14,80.5" stroke="#1a1512" strokeWidth={1.6} strokeLinecap="round" fill="none" />
-      <Ellipse cx={10} cy={80} rx={5} ry={1.8} fill="#3a3630" opacity={0.7} />
-      <Ellipse cx={9} cy={80.3} rx={2.2} ry={0.9} fill="#4a463e" opacity={0.6} />
-      <Ellipse cx={12} cy={80.6} rx={1.6} ry={0.7} fill="#28251f" opacity={0.7} />
-
-      {/* armchair — distinct back/seat/arms so it reads as furniture, not a blob */}
-      <Ellipse cx={14} cy={83.5} rx={11} ry={1.6} fill="#000" opacity={0.35} />
-      {/* backrest */}
-      <Path d="M8,85 L8,64 Q8,60 13,60 Q18,60 18,64 L18,85 Z" fill="#4a2e24" stroke="#000" strokeWidth={0.3} />
-      <Path d="M9.5,63 Q13,60.6 16.5,63" stroke="#00000055" strokeWidth={0.25} fill="none" />
-      <Line x1={13} y1={62} x2={13} y2={85} stroke="#00000044" strokeWidth={0.25} />
-      {/* seat cushion */}
-      <Rect x={6.5} y={76} width={13} height={7} rx={1.4} fill="#3f281f" stroke="#000" strokeWidth={0.25} />
-      <Line x1={7.5} y1={79.4} x2={18.5} y2={79.4} stroke="#00000044" strokeWidth={0.25} />
-      {/* rolled arms, flanking the seat, reaching the floor */}
-      <Path d="M4,85 L4,72 Q4,69.4 6.6,69.4 Q9,69.4 9,72 L9,85 Z" fill="#412720" stroke="#000" strokeWidth={0.3} />
-      <Path d="M17,85 L17,72 Q17,69.4 19.6,69.4 Q22,69.4 22,72 L22,85 Z" fill="#412720" stroke="#000" strokeWidth={0.3} />
-      <Ellipse cx={6.5} cy={70} rx={2.5} ry={1.1} fill="#523327" />
-      <Ellipse cx={19.5} cy={70} rx={2.5} ry={1.1} fill="#523327" />
-      {/* throw blanket draped over the left arm */}
-      <Path d="M3.6,72 Q2.2,76 4,81 Q6.4,82.4 7,79 Q5.6,75.6 6.2,72 Q4.8,71 3.6,72 Z" fill={colors.teal} opacity={0.88} />
-      <Line x1={4.6} y1={74} x2={5.8} y2={79} stroke="#00000033" strokeWidth={0.25} />
-      <Line x1={6} y1={70} x2={7.5} y2={76} stroke="#00000033" strokeWidth={0.25} />
-
-      {/* crooked painting: layered frame, mat, small landscape */}
-      <G transform="rotate(-4 18 23)">
-        <Ellipse cx={18} cy={36.5} rx={12} ry={1.2} fill="#000" opacity={0.2} />
-        <Rect x={6.5} y={10.5} width={23} height={25} rx={1.2} fill="#241812" stroke={colors.brass} strokeWidth={0.8} />
-        <Rect x={8.3} y={12.3} width={19.4} height={21.4} fill="none" stroke={colors.brassDim} strokeWidth={0.35} opacity={0.7} />
-        {[[8, 12], [27, 12], [8, 33], [27, 33]].map(([sx, sy]) => (
-          <Circle key={`${sx}-${sy}`} cx={sx} cy={sy} r={0.55} fill={colors.brassBright} opacity={0.8} />
-        ))}
-        <Rect x={9.5} y={13.5} width={17} height={19} fill="url(#canvasSky)" />
-        <Circle cx={23.5} cy={16.5} r={1.7} fill="#e8d9ad" opacity={0.55} />
-        <Path d="M9.5,29 Q13,22 16,27 Q19,20 22,26 Q24.5,23 26.5,27 L26.5,32.5 L9.5,32.5 Z" fill="#0e161d" opacity={0.9} />
-        <Line x1={13} y1={27} x2={13} y2={22} stroke="#0e161d" strokeWidth={0.4} />
-        <Circle cx={13} cy={21} r={1.1} fill="#12191f" opacity={0.9} />
-        <Path d="M10,11 L26,11" stroke="#ffffff" strokeWidth={0.3} opacity={0.15} />
-      </G>
-
-      {/* mantel ledge under the clock, grounding it — extended right to hold the bottle */}
-      <Rect x={38} y={21.6} width={30} height={1.8} rx={0.4} fill="#1a1108" stroke={colors.brassDim} strokeWidth={0.3} />
-      <Ellipse cx={53} cy={23.6} rx={16} ry={1.1} fill="#000" opacity={0.3} />
-
-      {/* prescription bottle, half-tucked behind the clock's shadow */}
-      <Ellipse cx={63.8} cy={21.9} rx={2.6} ry={0.6} fill="#000" opacity={0.35} />
-      <Rect x={61.8} y={17.6} width={4} height={4.4} rx={0.6} fill="#a8752e" stroke="#5c3a13" strokeWidth={0.25} />
-      <Rect x={62.5} y={16.4} width={2.6} height={1.4} rx={0.3} fill="#c9c2b4" stroke="#8a8474" strokeWidth={0.2} />
-      <Rect x={62.1} y={18.6} width={3.2} height={2.2} fill={colors.paper} opacity={0.9} />
-      <Line x1={62.4} y1={19.3} x2={65} y2={19.3} stroke="#5c3a13" strokeWidth={0.12} opacity={0.6} />
-      <Line x1={62.4} y1={19.9} x2={64.4} y2={19.9} stroke="#5c3a13" strokeWidth={0.12} opacity={0.5} />
-
-      {/* mantel clock: pediment, casing, face, ticks, hands */}
-      <Path d="M45.5,4.4 Q50,1 54.5,4.4 L52.5,6 L47.5,6 Z" fill={colors.brassDim} stroke={colors.brass} strokeWidth={0.3} />
-      <Circle cx={50} cy={13} r={9.4} fill="url(#metalSheen)" stroke={colors.brass} strokeWidth={0.75} />
-      <Circle cx={50} cy={13} r={7.6} fill="#12181f" stroke={colors.brassDim} strokeWidth={0.3} />
-      {Array.from({ length: 12 }).map((_, i) => {
-        const deg = i * 30;
-        const rad = (deg * Math.PI) / 180;
-        const inner = 6.5;
-        const outer = 7.35;
-        const big = deg % 90 === 0;
-        return (
-          <Line
-            key={deg}
-            x1={50 + Math.sin(rad) * inner}
-            y1={13 - Math.cos(rad) * inner}
-            x2={50 + Math.sin(rad) * outer}
-            y2={13 - Math.cos(rad) * outer}
-            stroke={big ? colors.paper : colors.paperDim}
-            strokeWidth={big ? 0.5 : 0.22}
-          />
-        );
-      })}
-      {/* hands fixed at 11:23 — matches the "Stopped Clock — 11:23" clue */}
-      <Line x1={50} y1={13} x2={48.35} y2={8.07} stroke={colors.paper} strokeWidth={0.65} strokeLinecap="round" />
-      <Line x1={50} y1={13} x2={54.68} y2={18.2} stroke={colors.paper} strokeWidth={0.5} strokeLinecap="round" />
-      <Circle cx={50} cy={13} r={0.55} fill={colors.brassBright} />
-      <Path d="M44,7.2 Q50,3.2 56.5,8" stroke="#fff" strokeWidth={0.4} opacity={0.16} fill="none" />
-      <Circle cx={50} cy={20.4} r={0.5} fill={colors.brassDim} opacity={0.8} />
-
-      {/* bookshelf: casing, shaded back panel, curved-spine books, top clutter, bust */}
-      <Ellipse cx={82.5} cy={64.5} rx={15} ry={1.4} fill="#000" opacity={0.3} />
-      <Rect x={69} y={5} width={27} height={58} fill="url(#shelfBack)" stroke={colors.brass} strokeWidth={0.55} />
-      <Rect x={69} y={5} width={27} height={58} fill="url(#lampGlowBulb)" opacity={0.4} />
-      {[16, 27, 38, 49, 60].map((y) => (
-        <G key={y}>
-          <Line x1={69} y1={y} x2={96} y2={y} stroke={colors.brass} strokeWidth={0.45} opacity={0.75} />
-          <Line x1={69} y1={y + 0.4} x2={96} y2={y + 0.4} stroke="#000" strokeWidth={0.3} opacity={0.3} />
-        </G>
-      ))}
-      {[
-        { row: 0, col: 0, h: 9.2, w: 3.4, tilt: 0 },
-        { row: 0, col: 1, h: 8, w: 3, tilt: -6 },
-        { row: 0, col: 2, h: 9.6, w: 3.6, tilt: 0 },
-        { row: 0, col: 3, h: 7.4, w: 2.8, tilt: 0 },
-        { row: 0, col: 4, h: 9, w: 3.2, tilt: 5 },
-        { row: 1, col: 0, h: 8.6, w: 3.2, tilt: 0 },
-        { row: 1, col: 1, h: 9.4, w: 3.6, tilt: 0 },
-        { row: 1, col: 2, h: 7.8, w: 3, tilt: 0 },
-        { row: 1, col: 3, h: 9, w: 3.4, tilt: -4 },
-        { row: 1, col: 4, h: 8.2, w: 3, tilt: 0 },
-      ].map((b, i) => {
-        const x = 71.3 + b.col * 5.1;
-        const y = 6 + b.row * 11 + (9.6 - b.h);
-        return <BookSpine key={i} x={x} y={y} w={b.w} h={b.h} fill={bookPalette[(i + b.row) % bookPalette.length]} tilt={b.tilt} />;
-      })}
-
-      {/* the third shelf — the actual "SEEK THE THIRD SHELF" target, visually distinct
-          from the plain shelves above so an observant player can spot it before the cipher.
-          The symbols themselves render as a separate <ThirdShelfSymbols> text overlay in
-          PlayScreen — see thirdShelfLayout.ts for why. */}
-      {THIRD_SHELF_SYMBOLS.map((symbol, col) => (
-        <BookSpine
-          key={symbol}
-          x={thirdShelfBookX(col)}
-          w={THIRD_SHELF_BOOK_WIDTH}
-          h={THIRD_SHELF_BOOK_HEIGHT}
-          y={THIRD_SHELF_BOOK_Y}
-          fill="#20262d"
-        />
-      ))}
-      {/* horizontal stack resting on top of the casing */}
-      <Rect x={73} y={2.4} width={9} height={1.6} rx={0.4} fill={bookPalette[1]} transform="rotate(-2 77 3)" />
-      <Rect x={74} y={0.9} width={7.4} height={1.5} rx={0.4} fill={bookPalette[3]} transform="rotate(2 77 1.6)" />
-      {/* small bust on a pedestal — warm-toned so it pops off the dark shelf back */}
-      <Rect x={80.6} y={59.6} width={3.8} height={2.6} rx={0.3} fill="#3a2f22" stroke={colors.brassDim} strokeWidth={0.3} />
-      <Path d="M81,59.7 Q82.5,55.6 84,59.7 Z" fill="#d9c48f" opacity={0.9} />
-      <Circle cx={82.5} cy={56} r={1.15} fill="#d9c48f" opacity={0.9} />
-      <Path d="M81.6,55.6 Q82.5,54.6 83.4,55.6" stroke="#00000033" strokeWidth={0.15} fill="none" />
-
-      {/* desk: wood grain, warm pool, clutter, lamp anchored to the surface */}
-      <Ellipse cx={49} cy={87.5} rx={24} ry={2.5} fill="#000" opacity={0.35} />
-      <Rect x={27} y={58} width={44} height={26} rx={2} fill="url(#woodDesk)" stroke={colors.brass} strokeWidth={0.5} />
-      <Line x1={28} y1={58.6} x2={70} y2={58.6} stroke="#ffffff2a" strokeWidth={0.35} />
-      <Rect x={27} y={58} width={44} height={26} rx={2} fill="url(#lampGlowDesk)" />
-      {[63, 67, 71, 75, 79].map((y) => (
-        <Line key={y} x1={29} y1={y} x2={69} y2={y} stroke="#000" strokeWidth={0.15} opacity={0.22} />
-      ))}
-
-      {/* desk lamp, base sitting flush on the surface */}
-      <Ellipse cx={63} cy={58.4} rx={2.4} ry={0.7} fill="#000" opacity={0.4} />
-      <Ellipse cx={63} cy={58.2} rx={2} ry={0.6} fill="#2a2f36" stroke={colors.brassDim} strokeWidth={0.25} />
-      <Path d="M63,57.8 Q63.4,52 60.2,49.4" stroke="#2a2f36" strokeWidth={0.8} fill="none" strokeLinecap="round" />
-      <Path d="M56.5,49.6 L60.5,48.8 L61.6,45.6 L57.2,44.6 Z" fill="#3a3128" stroke={colors.brassDim} strokeWidth={0.3} />
-      <BreathingGlow cx={58.8} cy={47.2} rx={3.6} ry={2.2} gradientId="lampGlowBulb" />
-      <Circle cx={58.8} cy={47.4} r={0.5} fill="#ffe6a8" opacity={0.9} />
-
-      {/* papers, pen, mug — kept clear of the drawer hotspot */}
-      <G transform="rotate(-6 38 64)">
-        <Rect x={33} y={60.5} width={11} height={8} rx={0.4} fill={colors.paperDim} opacity={0.85} />
-      </G>
-      <G transform="rotate(4 40 65)">
-        <Rect x={35} y={61.5} width={11} height={8} rx={0.4} fill={colors.paper} opacity={0.92} />
-        <Line x1={37} y1={64} x2={44} y2={64} stroke="#2a2018" strokeWidth={0.25} opacity={0.5} />
-        <Line x1={37} y1={66} x2={42} y2={66} stroke="#2a2018" strokeWidth={0.25} opacity={0.4} />
-      </G>
-      <Line x1={30.5} y1={80} x2={34.5} y2={75.5} stroke="#1a1108" strokeWidth={0.5} strokeLinecap="round" />
-      <Circle cx={34.6} cy={75.3} r={0.4} fill={colors.brassDim} />
-      <Path d="M64,78 L64,74.5 Q64,73.5 65,73.5 L67.6,73.5 Q68.6,73.5 68.6,74.5 L68.6,78 Z" fill="#1c232b" stroke={colors.brassDim} strokeWidth={0.25} />
-      <Path d="M68.6,75 Q70,75 70,76.2 Q70,77.4 68.6,77.2" fill="none" stroke={colors.brassDim} strokeWidth={0.3} />
-
-      {/* the drawer / lock housing — the actionable hotspot, kept brightest */}
-      <Rect x={33} y={68} width={32} height={12} rx={1} fill="#141b23" stroke={colors.brassDim} strokeWidth={0.4} />
-      <Line x1={35} y1={69.2} x2={63} y2={69.2} stroke="#ffffff1a" strokeWidth={0.3} />
-      <Circle cx={49} cy={74} r={1.6} fill={colors.brass} />
-      <Circle cx={49} cy={74} r={2.7} fill="none" stroke={colors.brassBright} strokeWidth={0.25} opacity={0.55} />
-
-      <DustMotes seed={1} count={12} area={[20, 10, 60, 50]} />
-    </>
-  );
-}
-
 function DrawerArt() {
   return (
     <>
@@ -485,6 +266,25 @@ function DrawerArt() {
         ))}
         <Circle cx={33} cy={72} r={2.1} fill={colors.rust} opacity={0.9} />
         <Circle cx={33} cy={72} r={1.1} fill={colors.rustBright} opacity={0.7} />
+      </G>
+
+      {/* a torn diary page, smaller and more private a hand than the ledger notes —
+          the Mara thread's resolving clue */}
+      <G transform="rotate(4 66 70)">
+        <Ellipse cx={66} cy={85} rx={16} ry={1.4} fill="#000" opacity={0.25} />
+        <Path d="M53,58 L79,58 L79,82 Q66,85 53,82 Z" fill={colors.paper} opacity={0.92} stroke="#00000022" strokeWidth={0.3} />
+        {[63, 66, 69, 72, 75, 78].map((y, i) => (
+          <Line
+            key={y}
+            x1={57}
+            y1={y}
+            x2={57 + [19, 17, 20, 14, 18, 11][i]}
+            y2={y}
+            stroke="#2a2018"
+            strokeWidth={0.3}
+            opacity={0.5}
+          />
+        ))}
       </G>
     </>
   );
@@ -573,6 +373,16 @@ function HiddenRoomArt() {
         opacity={0.9}
       />
       <Line x1={50} y1={40.5} x2={50} y2={50} stroke="#00000044" strokeWidth={0.25} />
+
+      {/* a note, half-tucked into the spare coat's pocket — the Silas thread's
+          resolving clue, found only after reaching this room */}
+      <G transform="rotate(-8 47.5 43)">
+        <Ellipse cx={47.5} cy={46.3} rx={3.6} ry={0.7} fill="#000" opacity={0.25} />
+        <Path d="M45,40.6 L50,40.6 L50,45.4 L45,45.4 Z" fill={colors.paper} opacity={0.94} stroke="#00000022" strokeWidth={0.25} />
+        {[42, 43.2, 44.4].map((y) => (
+          <Line key={y} x1={45.8} y1={y} x2={49.2} y2={y} stroke="#2a2018" strokeWidth={0.22} opacity={0.5} />
+        ))}
+      </G>
 
       {/* evidence board: corkboard, angled pinned cards, red string, warm lamp glow */}
       <Ellipse cx={73} cy={71.5} rx={18} ry={1.6} fill="#000" opacity={0.3} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/types';
@@ -9,6 +10,12 @@ import { ClueEntry, Hotspot, Puzzle } from '../types/case';
 import { clueRegistry, revealOnceClueIds } from '../utils/caseHelpers';
 import { SceneIllustration } from '../components/SceneIllustration';
 import { HotspotLayer } from '../components/HotspotLayer';
+
+// The Study is a real reference photo (not hand-drawn SVG like the other
+// scenes) — 1408x768, so the scene box matches that aspect ratio instead of
+// the SVG scenes' square 100x100 viewBox.
+const STUDY_BG = require('../../assets/scenes/study.jpeg');
+const STUDY_ASPECT_RATIO = 1408 / 768;
 import { NotebookSheet } from '../components/NotebookSheet';
 import { ClueModal } from '../components/ClueModal';
 import { Toast } from '../components/Toast';
@@ -100,11 +107,16 @@ export function PlayScreen({ route, navigation }: Props) {
           </Pressable>
         </View>
 
-        {/* Square box matching the SVG viewBox aspect ratio (0 0 100 100) — keeps hotspot
-            fractions aligned with the art exactly, instead of stretching/cropping full-bleed
-            and drifting out of sync with tap targets on tall phone aspect ratios. */}
-        <View style={styles.sceneBox}>
-          <SceneIllustration background={currentScene.background} />
+        {/* Box matches the background art's own aspect ratio (square 100x100 viewBox for
+            the hand-drawn SVG scenes, or the reference photo's real 1408x768 ratio for the
+            Study) — keeps hotspot fractions aligned with the art exactly, instead of
+            stretching/cropping full-bleed and drifting out of sync with tap targets. */}
+        <View style={[styles.sceneBox, currentScene.background === 'study' && { aspectRatio: STUDY_ASPECT_RATIO }]}>
+          {currentScene.background === 'study' ? (
+            <Image source={STUDY_BG} style={styles.sceneImage} contentFit="cover" />
+          ) : (
+            <SceneIllustration background={currentScene.background} />
+          )}
           <HotspotLayer
             hotspots={currentScene.hotspots}
             collectedClueIds={progress.collectedClueIds}
@@ -183,6 +195,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     overflow: 'hidden',
   },
+  sceneImage: { width: '100%', height: '100%' },
   topBtn: { backgroundColor: 'rgba(11,15,20,0.7)', paddingHorizontal: spacing.sm, paddingVertical: 6, borderRadius: 8 },
   notebookBtn: { backgroundColor: 'rgba(11,15,20,0.7)', paddingHorizontal: spacing.sm, paddingVertical: 6, borderRadius: 8 },
   topBtnText: { color: colors.paper, fontFamily: fonts.display, fontSize: 12 },
