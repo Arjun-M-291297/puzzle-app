@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
+import { useFocusEffect } from '@react-navigation/native';
 import { NARRATOR_PITCH, NARRATOR_RATE, resolveNarratorVoiceId } from '../services/narratorVoice';
 import { useGameStore } from '../store/gameStore';
 import { colors, radii } from '../theme';
@@ -41,6 +42,19 @@ export function ReadAloudButton({ text, resetKey }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey]);
+
+  // React Navigation keeps the outgoing screen mounted for the duration of the
+  // transition animation, so a plain unmount-cleanup lags behind the tap — the
+  // old narration keeps playing into the next screen. Stopping on blur (focus
+  // lost) instead fires immediately, right as navigation starts.
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        Speech.stop();
+        setSpeaking(false);
+      };
+    }, [])
+  );
 
   const toggle = () => {
     Haptics.selectionAsync();
