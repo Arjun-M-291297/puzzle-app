@@ -3,7 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Screen, Heading, BodyText, CaseFileLabel, Button } from '../components/ui';
-import { ReadAloudButton } from '../components/ReadAloudButton';
+// import { ReadAloudButton } from '../components/ReadAloudButton'; // narration disabled for now
 import { useGameStore } from '../store/gameStore';
 import { vanishingHour } from '../data/cases/vanishingHour';
 import { colors, radii, spacing } from '../theme';
@@ -38,7 +38,7 @@ export function CaseIntroScreen({ navigation }: Props) {
         <View>
           <View style={styles.subtitleRow}>
             <CaseFileLabel>{def.subtitle}</CaseFileLabel>
-            <ReadAloudButton text={`${def.title}. ${def.premise}`} resetKey={def.id} />
+            {/* <ReadAloudButton text={`${def.title}. ${def.premise}`} resetKey={def.id} /> */}
           </View>
           <Heading style={styles.title}>{def.title}</Heading>
           <BodyText style={styles.premise}>{def.premise}</BodyText>

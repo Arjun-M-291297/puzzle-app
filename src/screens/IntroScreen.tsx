@@ -8,7 +8,7 @@ import { allCases, vanishingHour } from '../data/cases/vanishingHour';
 import { useGameStore } from '../store/gameStore';
 import { IntroPanelArt } from '../components/IntroPanelArt';
 import { SpeechBubble } from '../components/SpeechBubble';
-import { ReadAloudButton } from '../components/ReadAloudButton';
+// import { ReadAloudButton } from '../components/ReadAloudButton'; // narration disabled for now
 import { Button, BodyText } from '../components/ui';
 import { colors, fonts, spacing } from '../theme';
 import { IntroSlide } from '../types/case';
@@ -92,7 +92,7 @@ export function IntroScreen({ route, navigation }: Props) {
             ))}
           </View>
           <View style={styles.topRight}>
-            <ReadAloudButton text={slideNarration(slide)} resetKey={slide.id} />
+            {/* <ReadAloudButton text={slideNarration(slide)} resetKey={slide.id} /> */}
             <Pressable onPress={finish} hitSlop={10}>
               <Text style={styles.skip}>Skip</Text>
             </Pressable>
