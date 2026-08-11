@@ -12,10 +12,10 @@ import { SceneIllustration } from '../components/SceneIllustration';
 import { HotspotLayer } from '../components/HotspotLayer';
 
 // The Study is a real reference photo (not hand-drawn SVG like the other
-// scenes) — 1408x768, so the scene box matches that aspect ratio instead of
-// the SVG scenes' square 100x100 viewBox.
-const STUDY_BG = require('../../assets/scenes/study.jpeg');
-const STUDY_ASPECT_RATIO = 1408 / 768;
+// scenes) — 704x1251 (portrait, ~9:16), so the scene box matches that aspect
+// ratio instead of the SVG scenes' square 100x100 viewBox.
+const STUDY_BG = require('../../assets/scenes/study-portrait.jpg');
+const STUDY_ASPECT_RATIO = 704 / 1251;
 import { NotebookSheet } from '../components/NotebookSheet';
 import { ClueModal } from '../components/ClueModal';
 import { Toast } from '../components/Toast';
@@ -107,11 +107,18 @@ export function PlayScreen({ route, navigation }: Props) {
           </Pressable>
         </View>
 
-        {/* Box matches the background art's own aspect ratio (square 100x100 viewBox for
-            the hand-drawn SVG scenes, or the reference photo's real 1408x768 ratio for the
-            Study) — keeps hotspot fractions aligned with the art exactly, instead of
-            stretching/cropping full-bleed and drifting out of sync with tap targets. */}
-        <View style={[styles.sceneBox, currentScene.background === 'study' && { aspectRatio: STUDY_ASPECT_RATIO }]}>
+        {/* SVG scenes are full-width-square (matches their 100x100 viewBox). The Study's
+            reference photo is portrait (~9:16) — full width would make it taller than the
+            screen, so it's height-constrained (fills the remaining vertical space, width
+            follows from its own aspect ratio, centered) instead. Either way, hotspot
+            fractions stay aligned with the art exactly, no stretching/cropping full-bleed. */}
+        <View
+          style={
+            currentScene.background === 'study'
+              ? [styles.sceneBox, styles.sceneBoxStudy, { aspectRatio: STUDY_ASPECT_RATIO }]
+              : styles.sceneBox
+          }
+        >
           {currentScene.background === 'study' ? (
             <Image source={STUDY_BG} style={styles.sceneImage} contentFit="cover" />
           ) : (
@@ -194,6 +201,11 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     overflow: 'hidden',
+  },
+  sceneBoxStudy: {
+    width: undefined,
+    flex: 1,
+    alignSelf: 'center',
   },
   sceneImage: { width: '100%', height: '100%' },
   topBtn: { backgroundColor: 'rgba(11,15,20,0.7)', paddingHorizontal: spacing.sm, paddingVertical: 6, borderRadius: 8 },
